@@ -136,6 +136,11 @@ public class TextElement extends Rectangle implements HasText {
         TextChunk currentChunk;
         boolean sameLine, acrossVerticalRuling;
 
+        //used to allow for the next char to be read
+        int iterations = 0;
+        System.out.println(verticalRulings + "a list of verticalRulings");
+
+
         for (TextElement chr : copyOfTextElements) {
             currentChunk = textChunks.get(textChunks.size() - 1);
             prevChar = currentChunk.textElements.get(currentChunk.textElements.size() - 1);
@@ -168,6 +173,43 @@ public class TextElement extends Rectangle implements HasText {
                 }
             }
 
+
+            TextElement nextChar;
+            float minDistance = 9999999f;
+            Ruling rightR = null;
+
+            if (iterations + 1 < copyOfTextElements.size()) {
+                nextChar = copyOfTextElements.get(iterations + 1);
+                if(chr.y < nextChar.y) {
+                    System.out.println("Next char is on new line. chr.y: " + "''" + chr.getText() + "''" + ", " + chr.y + ". nextChar.y: " + "''" + nextChar.getText() + "''" + ", " + nextChar.y + ".");
+                    boolean flag = false;
+                    for (Ruling r : verticalRulings) {
+
+                        float difRight = chr.getRight() - r.getPosition();
+                        if (difRight < 0) {
+                            difRight = difRight * -1.0f;
+                        }
+
+                        float difLeft = chr.getLeft() - r.getPosition();
+                        if (difLeft < 0) {
+                            difLeft = difLeft * -1.0f;
+                        }
+                        System.out.println("Right diff " + difRight + " Left dif " + difLeft);
+                        if (difRight > difLeft) {
+                            continue;
+                        }else if(minDistance > difRight){
+                            minDistance = difRight;
+                            rightR = r;
+                            flag = true;
+                        }
+                    }
+                    if (flag) {
+                        System.out.println(chr.getText() + " posL " + chr.getLeft() + " posR " + chr.getRight() + " Ruling " + rightR.getPosition() + " Distance " + minDistance);
+
+                    }
+                }
+            }
+            iterations++;
             // Estimate the expected width of the space based on the
             // space character with some margin.
             wordSpacing = chr.getWidthOfSpace();
