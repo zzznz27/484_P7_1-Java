@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-CommandLineApp<tabula>",
+            "request": "launch",
+            "mainClass": "technology.tabula.CommandLineApp",
+            "projectName": "tabula",
+            "args": "C:/Users/zache/Desktop/test.pdf -l -o out2.csv"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Debug<tabula>",
+            "request": "launch",
+            "mainClass": "technology.tabula.debug.Debug",
+            "projectName": "tabula"
+        }
+    ]
+}

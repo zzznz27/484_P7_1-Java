@@ -14,13 +14,13 @@ public class TextElement extends Rectangle implements HasText {
     private float widthOfSpace, dir;
     private static final float AVERAGE_CHAR_TOLERANCE = 0.3f;
 
-    public TextElement(float y, float x, float width, float height,
-                       PDFont font, float fontSize, String c, float widthOfSpace) {
+    public TextElement(float y, float x, float width, float height, PDFont font, float fontSize, String c,
+            float widthOfSpace) {
         this(y, x, width, height, font, fontSize, c, widthOfSpace, 0f);
     }
 
-    public TextElement(float y, float x, float width, float height,
-                       PDFont font, float fontSize, String c, float widthOfSpace, float dir) {
+    public TextElement(float y, float x, float width, float height, PDFont font, float fontSize, String c,
+            float widthOfSpace, float dir) {
         super();
         this.setRect(x, y, width, height);
         this.text = c;
@@ -30,7 +30,8 @@ public class TextElement extends Rectangle implements HasText {
         this.dir = dir;
     }
 
-    @Override public String getText() {
+    @Override
+    public String getText() {
         return text;
     }
 
@@ -50,7 +51,8 @@ public class TextElement extends Rectangle implements HasText {
         return fontSize;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         String s = super.toString();
         sb.append(s.substring(0, s.length() - 1));
@@ -79,24 +81,21 @@ public class TextElement extends Rectangle implements HasText {
         if (getClass() != obj.getClass())
             return false;
         TextElement other = (TextElement) obj;
-        if (java.lang.Float.floatToIntBits(dir) != java.lang.Float
-                .floatToIntBits(other.dir))
+        if (java.lang.Float.floatToIntBits(dir) != java.lang.Float.floatToIntBits(other.dir))
             return false;
         if (font == null) {
             if (other.font != null)
                 return false;
         } else if (!font.equals(other.font))
             return false;
-        if (java.lang.Float.floatToIntBits(fontSize) != java.lang.Float
-                .floatToIntBits(other.fontSize))
+        if (java.lang.Float.floatToIntBits(fontSize) != java.lang.Float.floatToIntBits(other.fontSize))
             return false;
         if (text == null) {
             if (other.text != null)
                 return false;
         } else if (!text.equals(other.text))
             return false;
-        return java.lang.Float.floatToIntBits(widthOfSpace) == java.lang.Float
-                .floatToIntBits(other.widthOfSpace);
+        return java.lang.Float.floatToIntBits(widthOfSpace) == java.lang.Float.floatToIntBits(other.widthOfSpace);
     }
 
     public static List<TextChunk> mergeWords(List<TextElement> textElements) {
@@ -104,9 +103,9 @@ public class TextElement extends Rectangle implements HasText {
     }
 
     /**
-     * heuristically merge a list of TextElement into a list of TextChunk
-     * ported from from PDFBox's PDFTextStripper.writePage, with modifications.
-     * Here be dragons
+     * heuristically merge a list of TextElement into a list of TextChunk ported
+     * from from PDFBox's PDFTextStripper.writePage, with modifications. Here be
+     * dragons
      */
     public static List<TextChunk> mergeWords(List<TextElement> textElements, List<Ruling> verticalRulings) {
 
@@ -116,8 +115,14 @@ public class TextElement extends Rectangle implements HasText {
             return textChunks;
         }
 
+        // //check text elelments being processed
+        // for (TextElement t : textElements) {
+        // System.out.println("Text: " + t.text);-
+        // }
+
         // it's a problem that this `remove` is side-effecty
-        // other things depend on `textElements` and it can sometimes lead to the first textElement in textElement
+        // other things depend on `textElements` and it can sometimes lead to the first
+        // textElement in textElement
         // not appearing in the final output because it's been removed here.
         // https://github.com/tabulapdf/tabula-java/issues/78
         List<TextElement> copyOfTextElements = new ArrayList<>(textElements);
@@ -137,6 +142,7 @@ public class TextElement extends Rectangle implements HasText {
         boolean sameLine, acrossVerticalRuling;
 
         for (TextElement chr : copyOfTextElements) {
+
             currentChunk = textChunks.get(textChunks.size() - 1);
             prevChar = currentChunk.textElements.get(currentChunk.textElements.size() - 1);
 
@@ -146,7 +152,8 @@ public class TextElement extends Rectangle implements HasText {
             }
 
             // if chr is a space that overlaps with prevChar, skip
-            if (chr.getText().equals(" ") && Utils.feq(prevChar.getLeft(), chr.getLeft()) && Utils.feq(prevChar.getTop(), chr.getTop())) {
+            if (chr.getText().equals(" ") && Utils.feq(prevChar.getLeft(), chr.getLeft())
+                    && Utils.feq(prevChar.getTop(), chr.getTop())) {
                 continue;
             }
 
@@ -159,14 +166,14 @@ public class TextElement extends Rectangle implements HasText {
             // is there any vertical ruling that goes across chr and prevChar?
             acrossVerticalRuling = false;
             for (Ruling r : verticalRulings) {
-                if (
-                        (verticallyOverlapsRuling(prevChar, r) && verticallyOverlapsRuling(chr, r)) &&
-                                (prevChar.x < r.getPosition() && chr.x > r.getPosition()) || (prevChar.x > r.getPosition() && chr.x < r.getPosition())
-                        ) {
+                if ((verticallyOverlapsRuling(prevChar, r) && verticallyOverlapsRuling(chr, r))
+                        && (prevChar.x < r.getPosition() && chr.x > r.getPosition())
+                        || (prevChar.x > r.getPosition() && chr.x < r.getPosition())) {
                     acrossVerticalRuling = true;
                     break;
                 }
             }
+            // TODO: Get vertical rulling for right side of current cell
 
             // Estimate the expected width of the space based on the
             // space character with some margin.
@@ -183,7 +190,8 @@ public class TextElement extends Rectangle implements HasText {
             // Estimate the expected width of the space based on the
             // average character width with some margin. This calculation does not
             // make a true average (average of averages) but we found that it gave the
-            // best results after numerous experiments. Based on experiments we also found that
+            // best results after numerous experiments. Based on experiments we also found
+            // that
             // .3 worked well.
             if (previousAveCharWidth < 0) {
                 averageCharWidth = (float) (chr.getWidth() / chr.getText().length());
@@ -192,7 +200,8 @@ public class TextElement extends Rectangle implements HasText {
             }
             deltaCharWidth = averageCharWidth * AVERAGE_CHAR_TOLERANCE;
 
-            // Compares the values obtained by the average method and the wordSpacing method and picks
+            // Compares the values obtained by the average method and the wordSpacing method
+            // and picks
             // the smaller number.
             expectedStartOfNextWordX = -java.lang.Float.MAX_VALUE;
 
@@ -203,54 +212,62 @@ public class TextElement extends Rectangle implements HasText {
             // new line?
             sameLine = true;
             if (!Utils.overlap(chr.getBottom(), chr.height, maxYForLine, maxHeightForLine)) {
-                endOfLastTextX = -1;
-                expectedStartOfNextWordX = -java.lang.Float.MAX_VALUE;
-                maxYForLine = -java.lang.Float.MAX_VALUE;
-                maxHeightForLine = -1;
-                minYTopForLine = java.lang.Float.MAX_VALUE;
-                sameLine = false;
+
+                // check wordwrap
+                if (!chr.wordWrapped(chr)) {
+                    // else
+                    endOfLastTextX = -1;
+                    expectedStartOfNextWordX = -java.lang.Float.MAX_VALUE;
+                    maxYForLine = -java.lang.Float.MAX_VALUE;
+                    maxHeightForLine = -1;
+                    minYTopForLine = java.lang.Float.MAX_VALUE;
+                    sameLine = false;
+                    System.out.print("Not Word Wrapped");
+                }
             }
 
             endOfLastTextX = chr.getRight();
 
             // should we add a space?
-            if (!acrossVerticalRuling &&
-                    sameLine &&
-                    expectedStartOfNextWordX < chr.getLeft() &&
-                    !prevChar.getText().endsWith(" ")) {
+            if (!acrossVerticalRuling && sameLine && expectedStartOfNextWordX < chr.getLeft()
+                    && !prevChar.getText().endsWith(" ")) {
 
-                sp = new TextElement(prevChar.getTop(),
-                        prevChar.getLeft(),
-                        expectedStartOfNextWordX - prevChar.getLeft(),
-                        (float) prevChar.getHeight(),
-                        prevChar.getFont(),
-                        prevChar.getFontSize(),
-                        " ",
-                        prevChar.getWidthOfSpace());
+                sp = new TextElement(prevChar.getTop(), prevChar.getLeft(),
+                        expectedStartOfNextWordX - prevChar.getLeft(), (float) prevChar.getHeight(), prevChar.getFont(),
+                        prevChar.getFontSize(), " ", prevChar.getWidthOfSpace());
 
                 currentChunk.add(sp);
             } else {
                 sp = null;
             }
 
+            // System.out.println("Current chunk:" + currentChunk.getText());
+            if (!sameLine)
+                System.out.println("**********Linebreak**********");
+
             maxYForLine = Math.max(chr.getBottom(), maxYForLine);
             maxHeightForLine = (float) Math.max(maxHeightForLine, chr.getHeight());
             minYTopForLine = Math.min(minYTopForLine, chr.getTop());
 
+            // get distance from start of current character and right of previous
+            // character/space
             dist = chr.getLeft() - (sp != null ? sp.getRight() : prevChar.getRight());
 
-            if (!acrossVerticalRuling &&
-                    sameLine &&
-                    (dist < 0 ? currentChunk.verticallyOverlaps(chr) : dist < wordSpacing)) {
+            // check if on same line and current chunk box overlaps current text element
+            if (sameLine) {
+
                 currentChunk.add(chr);
-            } else { // create a new chunk
+                // System.out.println("currentChunk: " + chr.text);
+
+            } else {
+                // create a new chunk
                 textChunks.add(new TextChunk(chr));
+                // System.out.println("newChunk: " + chr.text);
             }
 
             lastWordSpacing = wordSpacing;
             previousAveCharWidth = (float) (sp != null ? (averageCharWidth + sp.getWidth()) / 2.0f : averageCharWidth);
         }
-
 
         List<TextChunk> textChunksSeparatedByDirectionality = new ArrayList<>();
         // count up characters by directionality
@@ -259,8 +276,10 @@ public class TextElement extends Rectangle implements HasText {
             boolean isLtrDominant = chunk.isLtrDominant() != -1; // treat neutral as LTR
             TextChunk dirChunk = chunk.groupByDirectionality(isLtrDominant);
             textChunksSeparatedByDirectionality.add(dirChunk);
-        }
 
+            // System.out.println("array: " + textChunks.toString());
+        }
+        System.out.println("array: " + textChunksSeparatedByDirectionality.toString());
         return textChunksSeparatedByDirectionality;
     }
 
@@ -268,4 +287,13 @@ public class TextElement extends Rectangle implements HasText {
         return Math.max(0, Math.min(te.getBottom(), r.getY2()) - Math.max(te.getTop(), r.getY1())) > 0;
     }
 
+    private boolean wordWrapped(TextElement te) {
+        // float endSpaceWidth = te.width;
+
+        // if (this.width > endSpaceWidth) {
+        // return true;
+        // }
+
+        return true;
+    }
 }

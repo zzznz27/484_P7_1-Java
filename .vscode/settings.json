@@ -1,0 +1,6 @@
+{
+    "maven.executable.preferMavenWrapper": false,
+    "maven.terminal.useJavaHome": true,
+    "editor.formatOnSave": true,
+    "java.configuration.updateBuildConfiguration": "interactive"
+}
