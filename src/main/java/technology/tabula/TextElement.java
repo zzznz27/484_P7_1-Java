@@ -108,6 +108,8 @@ public class TextElement extends Rectangle implements HasText {
      * ported from from PDFBox's PDFTextStripper.writePage, with modifications.
      * Here be dragons
      */
+
+
     public static List<TextChunk> mergeWords(List<TextElement> textElements, List<Ruling> verticalRulings) {
 
         List<TextChunk> textChunks = new ArrayList<>();
@@ -138,7 +140,7 @@ public class TextElement extends Rectangle implements HasText {
 
         //used to allow for the next char to be read
         int iterations = 0;
-        System.out.println(verticalRulings + "a list of verticalRulings");
+        // System.out.println(verticalRulings + "a list of verticalRulings");
 
 
         for (TextElement chr : copyOfTextElements) {
@@ -179,9 +181,12 @@ public class TextElement extends Rectangle implements HasText {
             Ruling rightR = null;
 
             if (iterations + 1 < copyOfTextElements.size()) {
+
                 nextChar = copyOfTextElements.get(iterations + 1);
+
                 if(chr.y < nextChar.y) {
-                    System.out.println("Next char is on new line. chr.y: " + "''" + chr.getText() + "''" + ", " + chr.y + ". nextChar.y: " + "''" + nextChar.getText() + "''" + ", " + nextChar.y + ".");
+                    System.out.println("\nNext char is on new line. \n     chr.y: " + "'" + chr.getText() + "'" + ", " + chr.y);
+                    System.out.println("nextChar.y: " + "'" + nextChar.getText() + "'" + ", " + nextChar.y + "\n");
                     boolean flag = false;
                     for (Ruling r : verticalRulings) {
 
@@ -194,7 +199,7 @@ public class TextElement extends Rectangle implements HasText {
                         if (difLeft < 0) {
                             difLeft = difLeft * -1.0f;
                         }
-                        System.out.println("Right diff " + difRight + " Left dif " + difLeft);
+                        System.out.println("Right diff " + difRight + " \n Left diff " + difLeft + "\n");
                         if (difRight > difLeft) {
                             continue;
                         }else if(minDistance > difRight){
@@ -204,7 +209,7 @@ public class TextElement extends Rectangle implements HasText {
                         }
                     }
                     if (flag) {
-                        System.out.println(chr.getText() + " posL " + chr.getLeft() + " posR " + chr.getRight() + " Ruling " + rightR.getPosition() + " Distance " + minDistance);
+                        System.out.println("\n    text: '"+chr.getText() + "'\n    posL: " + chr.getLeft() + " \n    posR: " + chr.getRight() + " \n RulingX: " + rightR.getPosition() + " \nDistance: " + minDistance);
 
                     }
                 }
