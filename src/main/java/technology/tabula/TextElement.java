@@ -240,6 +240,8 @@ public class TextElement extends Rectangle implements HasText {
             endOfLastTextX = chr.getRight();
 
             // should we add a space?
+
+            // TODO: find way to create new line if its visible
             if (!acrossVerticalRuling && sameLine && expectedStartOfNextWordX < chr.getLeft()
                     && !prevChar.getText().endsWith(" ")) {
 
