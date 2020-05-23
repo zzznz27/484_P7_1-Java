@@ -107,6 +107,8 @@ public class TextElement extends Rectangle implements HasText {
      * from from PDFBox's PDFTextStripper.writePage, with modifications. Here be
      * dragons
      */
+
+
     public static List<TextChunk> mergeWords(List<TextElement> textElements, List<Ruling> verticalRulings) {
 
         List<TextChunk> textChunks = new ArrayList<>();
@@ -140,6 +142,11 @@ public class TextElement extends Rectangle implements HasText {
         TextElement sp, prevChar;
         TextChunk currentChunk;
         boolean sameLine, acrossVerticalRuling;
+
+        //used to allow for the next char to be read
+        int iterations = 0;
+        // System.out.println(verticalRulings + "a list of verticalRulings");
+
 
         for (TextElement chr : copyOfTextElements) {
 
@@ -175,6 +182,46 @@ public class TextElement extends Rectangle implements HasText {
             }
             // TODO: Get vertical rulling for right side of current cell
 
+
+            TextElement nextChar;
+            float minDistance = 9999999f;
+            Ruling rightR = null;
+
+            if (iterations + 1 < copyOfTextElements.size()) {
+
+                nextChar = copyOfTextElements.get(iterations + 1);
+
+                if(chr.y < nextChar.y) {
+                    System.out.println("\nNext char is on new line. \n     chr.y: " + "'" + chr.getText() + "'" + ", " + chr.y);
+                    System.out.println("nextChar.y: " + "'" + nextChar.getText() + "'" + ", " + nextChar.y + "\n");
+                    boolean flag = false;
+                    for (Ruling r : verticalRulings) {
+
+                        float difRight = chr.getRight() - r.getPosition();
+                        if (difRight < 0) {
+                            difRight = difRight * -1.0f;
+                        }
+
+                        float difLeft = chr.getLeft() - r.getPosition();
+                        if (difLeft < 0) {
+                            difLeft = difLeft * -1.0f;
+                        }
+                        System.out.println("Right diff " + difRight + " \n Left diff " + difLeft + "\n");
+                        if (difRight > difLeft) {
+                            continue;
+                        }else if(minDistance > difRight){
+                            minDistance = difRight;
+                            rightR = r;
+                            flag = true;
+                        }
+                    }
+                    if (flag) {
+                        System.out.println("\n    text: '"+chr.getText() + "'\n    posL: " + chr.getLeft() + " \n    posR: " + chr.getRight() + " \n RulingX: " + rightR.getPosition() + " \nDistance: " + minDistance);
+
+                    }
+                }
+            }
+            iterations++;
             // Estimate the expected width of the space based on the
             // space character with some margin.
             wordSpacing = chr.getWidthOfSpace();

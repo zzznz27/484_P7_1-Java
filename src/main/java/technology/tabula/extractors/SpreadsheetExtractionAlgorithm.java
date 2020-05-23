@@ -113,7 +113,7 @@ public class SpreadsheetExtractionAlgorithm implements ExtractionAlgorithm {
             for (Cell c: cells) {
                 if (c.intersects(area)) {
 
-                    c.setTextElements(TextElement.mergeWords(page.getText(c)));
+                    c.setTextElements(TextElement.mergeWords(page.getText(c), rulings));
                     overlappingCells.add(c);
                 }
             }
