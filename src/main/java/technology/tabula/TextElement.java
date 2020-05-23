@@ -146,7 +146,6 @@ public class TextElement extends Rectangle implements HasText {
         boolean sameLine, acrossVerticalRuling;
 
         // used to allow for the next char to be read
-        int iterations = 0;
         // System.out.println(verticalRulings + "a list of verticalRulings");
 
         for (TextElement chr : copyOfTextElements) {
@@ -182,8 +181,6 @@ public class TextElement extends Rectangle implements HasText {
                 }
             }
             // TODO: Get vertical rulling for right side of current cell
-
-            float closestRulingDistance = chr.closestRulingDistance(copyOfTextElements, verticalRulings);
 
             // Estimate the expected width of the space based on the
             // space character with some margin.
@@ -223,8 +220,12 @@ public class TextElement extends Rectangle implements HasText {
             sameLine = true;
             if (!Utils.overlap(chr.getBottom(), chr.height, maxYForLine, maxHeightForLine)) {
 
+                System.out.println(chr.text);
+                float widthOfWord = widthOfWord(chr, copyOfTextElements);
+                float closestRulingDistance = prevChar.closestRulingDistance(copyOfTextElements, verticalRulings);
+
                 // check wordwrap
-                if (!chr.wordWrapped(closestRulingDistance)) {
+                if (widthOfWord < closestRulingDistance) {
                     // else
                     endOfLastTextX = -1;
                     expectedStartOfNextWordX = -java.lang.Float.MAX_VALUE;
@@ -232,7 +233,7 @@ public class TextElement extends Rectangle implements HasText {
                     maxHeightForLine = -1;
                     minYTopForLine = java.lang.Float.MAX_VALUE;
                     sameLine = false;
-                    System.out.print("Not Word Wrapped");
+                    System.out.print("Not Word Wrapped\n");
                 }
             }
 
@@ -253,9 +254,9 @@ public class TextElement extends Rectangle implements HasText {
 
             // System.out.println("Current chunk:" + currentChunk.getText());
             if (!sameLine)
-                // System.out.println("**********Linebreak**********");
+                System.out.println("**********Linebreak**********");
 
-                maxYForLine = Math.max(chr.getBottom(), maxYForLine);
+            maxYForLine = Math.max(chr.getBottom(), maxYForLine);
             maxHeightForLine = (float) Math.max(maxHeightForLine, chr.getHeight());
             minYTopForLine = Math.min(minYTopForLine, chr.getTop());
 
@@ -298,15 +299,6 @@ public class TextElement extends Rectangle implements HasText {
         return Math.max(0, Math.min(te.getBottom(), r.getY2()) - Math.max(te.getTop(), r.getY1())) > 0;
     }
 
-    private boolean wordWrapped(float distance) {
-
-        if (this.width > distance) {
-            return true;
-        }
-
-        return true;
-    }
-
     private float closestRulingDistance(List<TextElement> copyOfTextElements, List<Ruling> verticalRulings) {
 
         float minDistance = java.lang.Float.MAX_VALUE;
@@ -343,13 +335,39 @@ public class TextElement extends Rectangle implements HasText {
                     }
                 }
 
-                System.out.println("\n    text: '" + this.getText() + "'\n    posL: " + this.getLeft() + " \n    posR: "
-                        + this.getRight() + " \n RulingX: " + rightR.getPosition() + " \nDistance: " + minDistance);
+                // System.out.println("\n text: '" + this.getText() + "'\n posL: " +
+                // this.getLeft() + " \n posR: "
+                // + this.getRight() + " \n RulingX: " + rightR.getPosition() + " \nDistance: "
+                // + minDistance);
 
             }
         }
 
         return minDistance;
+    }
+
+    /**
+     * Returns width of the word to the end of text element list
+     *
+     * @param chr          first text element in word
+     * @param textElements array of text elements that makes up word
+     * 
+     * @return float value of distance from most left pixel to last element most
+     *         right pixel
+     * 
+     **/
+
+    private static float widthOfWord(TextElement chr, List<TextElement> textElements) {
+
+        float distance = -1;
+
+        // get start position of word
+        float start = chr.getLeft();
+        float end = textElements.get(textElements.size() - 1).getRight();
+        distance = Math.abs(start - end);
+        // }
+        // }
+        return distance;
     }
 
 }

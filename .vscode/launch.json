@@ -16,7 +16,7 @@
             "request": "launch",
             "mainClass": "technology.tabula.CommandLineApp",
             "projectName": "tabula",
-            "args": "C:/Users/zache/Desktop/test.pdf -l -o out2.csv"
+            "args": "C:/Users/zache/Desktop/test2.pdf -l -o out2.csv"
         },
         {
             "type": "java",

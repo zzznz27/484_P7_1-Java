@@ -7,3 +7,5 @@
 /src/test/resources/technology/tabula/icdar2013-dataset/test-statistics.json
 /target/
 *.iml
+out2.csv
+out.csv
