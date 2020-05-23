@@ -3,7 +3,10 @@ package technology.tabula;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ListCellRenderer;
+
 import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.w3c.dom.Text;
 
 @SuppressWarnings("serial")
 public class TextElement extends Rectangle implements HasText {
@@ -108,7 +111,6 @@ public class TextElement extends Rectangle implements HasText {
      * dragons
      */
 
-
     public static List<TextChunk> mergeWords(List<TextElement> textElements, List<Ruling> verticalRulings) {
 
         List<TextChunk> textChunks = new ArrayList<>();
@@ -143,10 +145,9 @@ public class TextElement extends Rectangle implements HasText {
         TextChunk currentChunk;
         boolean sameLine, acrossVerticalRuling;
 
-        //used to allow for the next char to be read
+        // used to allow for the next char to be read
         int iterations = 0;
         // System.out.println(verticalRulings + "a list of verticalRulings");
-
 
         for (TextElement chr : copyOfTextElements) {
 
@@ -182,46 +183,8 @@ public class TextElement extends Rectangle implements HasText {
             }
             // TODO: Get vertical rulling for right side of current cell
 
+            float closestRulingDistance = chr.closestRulingDistance(copyOfTextElements, verticalRulings);
 
-            TextElement nextChar;
-            float minDistance = 9999999f;
-            Ruling rightR = null;
-
-            if (iterations + 1 < copyOfTextElements.size()) {
-
-                nextChar = copyOfTextElements.get(iterations + 1);
-
-                if(chr.y < nextChar.y) {
-                    System.out.println("\nNext char is on new line. \n     chr.y: " + "'" + chr.getText() + "'" + ", " + chr.y);
-                    System.out.println("nextChar.y: " + "'" + nextChar.getText() + "'" + ", " + nextChar.y + "\n");
-                    boolean flag = false;
-                    for (Ruling r : verticalRulings) {
-
-                        float difRight = chr.getRight() - r.getPosition();
-                        if (difRight < 0) {
-                            difRight = difRight * -1.0f;
-                        }
-
-                        float difLeft = chr.getLeft() - r.getPosition();
-                        if (difLeft < 0) {
-                            difLeft = difLeft * -1.0f;
-                        }
-                        System.out.println("Right diff " + difRight + " \n Left diff " + difLeft + "\n");
-                        if (difRight > difLeft) {
-                            continue;
-                        }else if(minDistance > difRight){
-                            minDistance = difRight;
-                            rightR = r;
-                            flag = true;
-                        }
-                    }
-                    if (flag) {
-                        System.out.println("\n    text: '"+chr.getText() + "'\n    posL: " + chr.getLeft() + " \n    posR: " + chr.getRight() + " \n RulingX: " + rightR.getPosition() + " \nDistance: " + minDistance);
-
-                    }
-                }
-            }
-            iterations++;
             // Estimate the expected width of the space based on the
             // space character with some margin.
             wordSpacing = chr.getWidthOfSpace();
@@ -261,7 +224,7 @@ public class TextElement extends Rectangle implements HasText {
             if (!Utils.overlap(chr.getBottom(), chr.height, maxYForLine, maxHeightForLine)) {
 
                 // check wordwrap
-                if (!chr.wordWrapped(chr)) {
+                if (!chr.wordWrapped(closestRulingDistance)) {
                     // else
                     endOfLastTextX = -1;
                     expectedStartOfNextWordX = -java.lang.Float.MAX_VALUE;
@@ -290,9 +253,9 @@ public class TextElement extends Rectangle implements HasText {
 
             // System.out.println("Current chunk:" + currentChunk.getText());
             if (!sameLine)
-                System.out.println("**********Linebreak**********");
+                // System.out.println("**********Linebreak**********");
 
-            maxYForLine = Math.max(chr.getBottom(), maxYForLine);
+                maxYForLine = Math.max(chr.getBottom(), maxYForLine);
             maxHeightForLine = (float) Math.max(maxHeightForLine, chr.getHeight());
             minYTopForLine = Math.min(minYTopForLine, chr.getTop());
 
@@ -326,7 +289,8 @@ public class TextElement extends Rectangle implements HasText {
 
             // System.out.println("array: " + textChunks.toString());
         }
-        System.out.println("array: " + textChunksSeparatedByDirectionality.toString());
+        // System.out.println("array: " +
+        // textChunksSeparatedByDirectionality.toString());
         return textChunksSeparatedByDirectionality;
     }
 
@@ -334,13 +298,58 @@ public class TextElement extends Rectangle implements HasText {
         return Math.max(0, Math.min(te.getBottom(), r.getY2()) - Math.max(te.getTop(), r.getY1())) > 0;
     }
 
-    private boolean wordWrapped(TextElement te) {
-        // float endSpaceWidth = te.width;
+    private boolean wordWrapped(float distance) {
 
-        // if (this.width > endSpaceWidth) {
-        // return true;
-        // }
+        if (this.width > distance) {
+            return true;
+        }
 
         return true;
     }
+
+    private float closestRulingDistance(List<TextElement> copyOfTextElements, List<Ruling> verticalRulings) {
+
+        float minDistance = java.lang.Float.MAX_VALUE;
+        Ruling rightR = null;
+        TextElement nextChar;
+
+        // check array is not out of bounds
+        if (copyOfTextElements.indexOf(this) + 1 < copyOfTextElements.size()) {
+
+            // get next chr in list from index of current chr + 1
+            nextChar = copyOfTextElements.get(copyOfTextElements.indexOf(this) + 1);
+
+            if (this.y < nextChar.y) {
+
+                // System.out.println("\nNext char is on new line. \n chr.y: " + "'" +
+                // chr.getText() + "'" + ", " + chr.y);
+                // System.out.println("nextChar.y: " + "'" + nextChar.getText() + "'" + ", " +
+                // nextChar.y + "\n");
+
+                for (Ruling r : verticalRulings) {
+
+                    // gets *absolute* value of left/right most pixel of character to the ruling
+                    float difRight = Math.abs(this.getRight() - r.getPosition());
+                    float difLeft = Math.abs(this.getLeft() - r.getPosition());
+
+                    // System.out.println("Right diff " + difRight + " \n Left diff " + difLeft +
+                    // "\n");
+
+                    if (difRight > difLeft) {
+                        continue;
+                    } else if (minDistance > difRight) {
+                        minDistance = difRight;
+                        rightR = r;
+                    }
+                }
+
+                System.out.println("\n    text: '" + this.getText() + "'\n    posL: " + this.getLeft() + " \n    posR: "
+                        + this.getRight() + " \n RulingX: " + rightR.getPosition() + " \nDistance: " + minDistance);
+
+            }
+        }
+
+        return minDistance;
+    }
+
 }
