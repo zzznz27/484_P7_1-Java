@@ -220,7 +220,6 @@ public class TextElement extends Rectangle implements HasText {
             sameLine = true;
             if (!Utils.overlap(chr.getBottom(), chr.height, maxYForLine, maxHeightForLine)) {
 
-                System.out.println(chr.text);
                 float widthOfWord = widthOfWord(chr, copyOfTextElements);
                 float closestRulingDistance = prevChar.closestRulingDistance(copyOfTextElements, verticalRulings);
 
@@ -233,7 +232,6 @@ public class TextElement extends Rectangle implements HasText {
                     maxHeightForLine = -1;
                     minYTopForLine = java.lang.Float.MAX_VALUE;
                     sameLine = false;
-                    System.out.print("Not Word Wrapped\n");
                 }
             }
 
@@ -254,9 +252,6 @@ public class TextElement extends Rectangle implements HasText {
                 sp = null;
             }
 
-            // System.out.println("Current chunk:" + currentChunk.getText());
-            if (!sameLine)
-                System.out.println("**********Linebreak**********");
 
             maxYForLine = Math.max(chr.getBottom(), maxYForLine);
             maxHeightForLine = (float) Math.max(maxHeightForLine, chr.getHeight());
