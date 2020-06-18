@@ -121,11 +121,6 @@ public class TextElement extends Rectangle implements HasText {
             return textChunks;
         }
 
-        // //check text elelments being processed
-        // for (TextElement t : textElements) {
-        // System.out.println("Text: " + t.text);-
-        // }
-
         // it's a problem that this `remove` is side-effecty
         // other things depend on `textElements` and it can sometimes lead to the first
         // textElement in textElement
@@ -146,13 +141,6 @@ public class TextElement extends Rectangle implements HasText {
         TextElement sp, prevChar;
         TextChunk currentChunk;
         boolean sameLine, acrossVerticalRuling;
-
-        System.out.println("mergeWords called: ");
-        for (TextElement chr : copyOfTextElements) {
-            System.out.print(chr.text);
-        }
-
-        System.out.println("\nmergeWords called: ");
 
         for (TextElement chr : copyOfTextElements) {
 
@@ -224,13 +212,8 @@ public class TextElement extends Rectangle implements HasText {
             // new line?
             sameLine = true;
             if (!Utils.overlap(chr.getBottom(), chr.height, maxYForLine, maxHeightForLine)) {
-                System.out.println("Curent Chr: " + chr.text);
-
-
                 float widthOfWord = widthOfWord(chr, copyOfTextElements);
                 float closestRulingDistance = prevChar.closestRulingDistance(copyOfTextElements, verticalRulings);
-                System.out.println("Chr witch of word: " + widthOfWord);
-                System.out.println("Chr closest ruling: " + closestRulingDistance + "\n");
                 // check wordwrap
                 if (widthOfWord < closestRulingDistance) {
                     // else
@@ -271,14 +254,11 @@ public class TextElement extends Rectangle implements HasText {
 
             // check if on same line and current chunk box overlaps current text element
             if (sameLine) {
-
                 currentChunk.add(chr);
-                //System.out.println("currentChunk: " + chr.text);
 
             } else {
                 // create a new chunk
                 textChunks.add(new TextChunk(chr));
-                System.out.println("newChunk: " + chr.text);
             }
 
             lastWordSpacing = wordSpacing;
@@ -293,10 +273,6 @@ public class TextElement extends Rectangle implements HasText {
             TextChunk dirChunk = chunk.groupByDirectionality(isLtrDominant);
             textChunksSeparatedByDirectionality.add(dirChunk);
 
-            // System.out.println("array: " + textChunks.toString());
-        }
-        // System.out.println("array: " +
-        // textChunksSeparatedByDirectionality.toString());
         return textChunksSeparatedByDirectionality;
     }
 
@@ -318,17 +294,11 @@ public class TextElement extends Rectangle implements HasText {
 
             if (this.y < nextChar.y) {
 
-                //System.out.println("\nNext char is on new line. \n chr.y: " + "'" + this.getText() + "'" + ", " + this.y + ", " + this.x + ", "+ this.getLeft() + ", " + this.getRight());
-                //System.out.println("nextChar.y: " + "'" + nextChar.getText() + "'" + ", " + nextChar.y + ", " + nextChar.x + "\n");
-
                 for (Ruling r : verticalRulings) {
                     if (this.getBottom() < r.getBottom() && this.getBottom() > r.getTop()) {
-                        System.out.println(r);
                         // gets *absolute* value of left/right most pixel of character to the ruling
                         float difRight = Math.abs(this.getRight() - r.getPosition());
                         float difLeft = Math.abs(this.getLeft() - r.getPosition());
-
-                        //System.out.println("Right diff " + difRight + " \n Left diff " + difLeft + "\n");
 
                         if (difRight > difLeft) {
                             continue;
@@ -339,10 +309,6 @@ public class TextElement extends Rectangle implements HasText {
                     }
                 }
 
-                // System.out.println("\n text: '" + this.getText() + "'\n posL: " +
-                // this.getLeft() + " \n posR: "
-                // + this.getRight() + " \n RulingX: " + rightR.getPosition() + " \nDistance: "
-                // + minDistance);
 
             }
         }
@@ -370,7 +336,6 @@ public class TextElement extends Rectangle implements HasText {
         float end = 0.0f;
         boolean foundWordBreak = false;
         for (int i = textElements.indexOf(chr); i <= textElements.size() - 1; i++) {
-            System.out.print(textElements.get(i).getText() + "+");
             if (textElements.get(i).getText().contains(" ") || textElements.get(i).getText().contains("\n")) {
                 if (i == 0) {
                     end = textElements.get(i).getRight();
@@ -384,7 +349,6 @@ public class TextElement extends Rectangle implements HasText {
         if (!foundWordBreak) {
             end = textElements.get(textElements.size() - 1).getRight();
         }
-        System.out.println("\nend. \n  " + end);
         distance = Math.abs(start - end);
         return distance;
     }
