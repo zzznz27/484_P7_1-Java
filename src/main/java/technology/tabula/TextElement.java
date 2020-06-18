@@ -272,7 +272,7 @@ public class TextElement extends Rectangle implements HasText {
             boolean isLtrDominant = chunk.isLtrDominant() != -1; // treat neutral as LTR
             TextChunk dirChunk = chunk.groupByDirectionality(isLtrDominant);
             textChunksSeparatedByDirectionality.add(dirChunk);
-
+        }
         return textChunksSeparatedByDirectionality;
     }
 
