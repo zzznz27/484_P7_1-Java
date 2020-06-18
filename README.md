@@ -19,7 +19,7 @@ Download a version of the tabula-java's jar, with all dependencies included, tha
 $ java -jar target/tabula-1.0.1-jar-with-dependencies.jar --help
 usage: tabula [-a <AREA>] [-b <DIRECTORY>] [-c <COLUMNS>] [-d] [-f
        <FORMAT>] [-g] [-h] [-i] [-l] [-n] [-o <OUTFILE>] [-p <PAGES>] [-r]
-       [-s <PASSWORD>] [-t] [-u] [-v]
+       [-s <PASSWORD>] [-t] [-u] [-v] [-w]
 
 Tabula helps you extract tables from PDFs
 
@@ -62,6 +62,12 @@ Tabula helps you extract tables from PDFs
  -u,--use-line-returns      Use embedded line returns in cells. (Only in
                             spreadsheet mode.)
  -v,--version               Print version and exit.
+ -w,--wordwrapcheck         Force PDF to be extracted using lattice-mode
+                            extraction with wordwrapcheck enabled
+                            (if there are ruling lines separating each
+                            cell, as in a PDF of an Excel spreadsheet and
+                            you want word wrapped lines to be preserved)
+
 ```
 
 It also includes a debugging tool, run `java -cp ./target/tabula-1.0.1-jar-with-dependencies.jar technology.tabula.debug.Debug -h` for the available options.
