@@ -103,16 +103,18 @@ public class TextElement extends Rectangle implements HasText {
     }
 
     public static List<TextChunk> mergeWords(List<TextElement> textElements) {
-        return mergeWords(textElements, new ArrayList<Ruling>());
+        return mergeWords(textElements, new ArrayList<Ruling>(), false);
     }
-
+    public static List<TextChunk> mergeWords(List<TextElement> textElements, List<Ruling> verticalRulings) {
+        return mergeWords(textElements, verticalRulings, false);
+    }   
     /**
      * heuristically merge a list of TextElement into a list of TextChunk ported
      * from from PDFBox's PDFTextStripper.writePage, with modifications. Here be
      * dragons
      */
 
-    public static List<TextChunk> mergeWords(List<TextElement> textElements, List<Ruling> verticalRulings) {
+    public static List<TextChunk> mergeWords(List<TextElement> textElements, List<Ruling> verticalRulings, boolean wordWrapCheck) {
 
 
         List<TextChunk> textChunks = new ArrayList<>();
@@ -212,11 +214,20 @@ public class TextElement extends Rectangle implements HasText {
             // new line?
             sameLine = true;
             if (!Utils.overlap(chr.getBottom(), chr.height, maxYForLine, maxHeightForLine)) {
-                float widthOfWord = widthOfWord(chr, copyOfTextElements);
-                float closestRulingDistance = prevChar.closestRulingDistance(copyOfTextElements, verticalRulings);
-                // check wordwrap
-                if (widthOfWord < closestRulingDistance) {
-                    // else
+                if (wordWrapCheck) {
+                    float widthOfWord = widthOfWord(chr, copyOfTextElements);
+                    float closestRulingDistance = prevChar.closestRulingDistance(copyOfTextElements, verticalRulings);
+                    // check wordwrap
+                    if (widthOfWord < closestRulingDistance) {
+                        // else
+                        endOfLastTextX = -1;
+                        expectedStartOfNextWordX = -java.lang.Float.MAX_VALUE;
+                        maxYForLine = -java.lang.Float.MAX_VALUE;
+                        maxHeightForLine = -1;
+                        minYTopForLine = java.lang.Float.MAX_VALUE;
+                        sameLine = false;
+                    }
+                }else{
                     endOfLastTextX = -1;
                     expectedStartOfNextWordX = -java.lang.Float.MAX_VALUE;
                     maxYForLine = -java.lang.Float.MAX_VALUE;

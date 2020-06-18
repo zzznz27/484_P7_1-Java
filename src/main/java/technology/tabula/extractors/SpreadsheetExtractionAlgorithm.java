@@ -81,13 +81,15 @@ public class SpreadsheetExtractionAlgorithm implements ExtractionAlgorithm {
     
     @Override
     public List<Table> extract(Page page) {
-        return extract(page, page.getRulings());
+        return extract(page, page.getRulings(), false);
     }
-    
+    public List<Table> extract(Page page, Boolean wordWrapCheck) {
+        return extract(page, page.getRulings(), wordWrapCheck);
+    }
     /**
      * Extract a list of Table from page using rulings as separators
      */
-    public List<Table> extract(Page page, List<Ruling> rulings) {
+    public List<Table> extract(Page page, List<Ruling> rulings, Boolean wordWrapCheck) {
         // split rulings into horizontal and vertical
         List<Ruling> horizontalR = new ArrayList<>(), 
                 verticalR = new ArrayList<>();
@@ -113,7 +115,7 @@ public class SpreadsheetExtractionAlgorithm implements ExtractionAlgorithm {
             for (Cell c: cells) {
                 if (c.intersects(area)) {
 
-                    c.setTextElements(TextElement.mergeWords(page.getText(c), rulings));
+                    c.setTextElements(TextElement.mergeWords(page.getText(c), rulings, wordWrapCheck));
                     overlappingCells.add(c);
                 }
             }

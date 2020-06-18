@@ -218,6 +218,11 @@ public class CommandLineApp {
     }
 
     private static ExtractionMethod whichExtractionMethod(CommandLine line) {
+        // -w/--wordwrapcheck
+        if (line.hasOption('w')) {
+            return ExtractionMethod.WORDWRAPCHECK;
+        }
+
         // -r/--spreadsheet [deprecated; use -l] or -l/--lattice
         if (line.hasOption('r') || line.hasOption('l')) {
             return ExtractionMethod.SPREADSHEET;
@@ -272,6 +277,7 @@ public class CommandLineApp {
         o.addOption("n", "no-spreadsheet", false, "[Deprecated in favor of -t/--stream] Force PDF not to be extracted using spreadsheet-style extraction (if there are no ruling lines separating each cell)");
         o.addOption("l", "lattice", false, "Force PDF to be extracted using lattice-mode extraction (if there are ruling lines separating each cell, as in a PDF of an Excel spreadsheet)");
         o.addOption("t", "stream", false, "Force PDF to be extracted using stream-mode extraction (if there are no ruling lines separating each cell)");
+        o.addOption("w", "wordwrapcheck", false, "Force PDF to be extracted using lattice-mode extraction with wordwrapcheck enabled (if there are ruling lines separating each cell, as in a PDF of an Excel spreadsheet and you want word wrapped lines to be preserved)");
         o.addOption("i", "silent", false, "Suppress all stderr output.");
         o.addOption("u", "use-line-returns", false, "Use embedded line returns in cells. (Only in spreadsheet mode.)");
         o.addOption("d", "debug", false, "Print detected table areas instead of processing.");
@@ -360,6 +366,8 @@ public class CommandLineApp {
                     return extractTablesBasic(page);
                 case SPREADSHEET:
                     return extractTablesSpreadsheet(page);
+                case WORDWRAPCHECK:
+                    return extractTablesSpreadsheetPlusWordWrapped(page);
                 default:
                     return new ArrayList<>();
             }
@@ -389,6 +397,10 @@ public class CommandLineApp {
         public List<Table> extractTablesSpreadsheet(Page page) {
             // TODO add useLineReturns
             return spreadsheetExtractor.extract(page);
+        }
+        public List<Table> extractTablesSpreadsheetPlusWordWrapped(Page page) {
+
+            return spreadsheetExtractor.extract(page, true);
         }
     }
 
@@ -442,6 +454,7 @@ public class CommandLineApp {
     private enum ExtractionMethod {
         BASIC,
         SPREADSHEET,
+        WORDWRAPCHECK,
         DECIDE
     }
 
