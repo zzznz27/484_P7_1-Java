@@ -2,6 +2,7 @@ package technology.tabula;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.*;
 
 import javax.swing.ListCellRenderer;
 
@@ -113,6 +114,7 @@ public class TextElement extends Rectangle implements HasText {
 
     public static List<TextChunk> mergeWords(List<TextElement> textElements, List<Ruling> verticalRulings) {
 
+
         List<TextChunk> textChunks = new ArrayList<>();
 
         if (textElements.isEmpty()) {
@@ -145,8 +147,12 @@ public class TextElement extends Rectangle implements HasText {
         TextChunk currentChunk;
         boolean sameLine, acrossVerticalRuling;
 
-        // used to allow for the next char to be read
-        // System.out.println(verticalRulings + "a list of verticalRulings");
+        System.out.println("mergeWords called: ");
+        for (TextElement chr : copyOfTextElements) {
+            System.out.print(chr.text);
+        }
+
+        System.out.println("\nmergeWords called: ");
 
         for (TextElement chr : copyOfTextElements) {
 
@@ -180,8 +186,7 @@ public class TextElement extends Rectangle implements HasText {
                     break;
                 }
             }
-            // TODO: Get vertical rulling for right side of current cell
-
+            
             // Estimate the expected width of the space based on the
             // space character with some margin.
             wordSpacing = chr.getWidthOfSpace();
@@ -219,10 +224,13 @@ public class TextElement extends Rectangle implements HasText {
             // new line?
             sameLine = true;
             if (!Utils.overlap(chr.getBottom(), chr.height, maxYForLine, maxHeightForLine)) {
+                System.out.println("Curent Chr: " + chr.text);
+
 
                 float widthOfWord = widthOfWord(chr, copyOfTextElements);
                 float closestRulingDistance = prevChar.closestRulingDistance(copyOfTextElements, verticalRulings);
-
+                System.out.println("Chr witch of word: " + widthOfWord);
+                System.out.println("Chr closest ruling: " + closestRulingDistance + "\n");
                 // check wordwrap
                 if (widthOfWord < closestRulingDistance) {
                     // else
@@ -265,12 +273,12 @@ public class TextElement extends Rectangle implements HasText {
             if (sameLine) {
 
                 currentChunk.add(chr);
-                // System.out.println("currentChunk: " + chr.text);
+                //System.out.println("currentChunk: " + chr.text);
 
             } else {
                 // create a new chunk
                 textChunks.add(new TextChunk(chr));
-                // System.out.println("newChunk: " + chr.text);
+                System.out.println("newChunk: " + chr.text);
             }
 
             lastWordSpacing = wordSpacing;
@@ -297,7 +305,7 @@ public class TextElement extends Rectangle implements HasText {
     }
 
     private float closestRulingDistance(List<TextElement> copyOfTextElements, List<Ruling> verticalRulings) {
-
+        
         float minDistance = java.lang.Float.MAX_VALUE;
         Ruling rightR = null;
         TextElement nextChar;
@@ -310,25 +318,24 @@ public class TextElement extends Rectangle implements HasText {
 
             if (this.y < nextChar.y) {
 
-                // System.out.println("\nNext char is on new line. \n chr.y: " + "'" +
-                // chr.getText() + "'" + ", " + chr.y);
-                // System.out.println("nextChar.y: " + "'" + nextChar.getText() + "'" + ", " +
-                // nextChar.y + "\n");
+                //System.out.println("\nNext char is on new line. \n chr.y: " + "'" + this.getText() + "'" + ", " + this.y + ", " + this.x + ", "+ this.getLeft() + ", " + this.getRight());
+                //System.out.println("nextChar.y: " + "'" + nextChar.getText() + "'" + ", " + nextChar.y + ", " + nextChar.x + "\n");
 
                 for (Ruling r : verticalRulings) {
+                    if (this.getBottom() < r.getBottom() && this.getBottom() > r.getTop()) {
+                        System.out.println(r);
+                        // gets *absolute* value of left/right most pixel of character to the ruling
+                        float difRight = Math.abs(this.getRight() - r.getPosition());
+                        float difLeft = Math.abs(this.getLeft() - r.getPosition());
 
-                    // gets *absolute* value of left/right most pixel of character to the ruling
-                    float difRight = Math.abs(this.getRight() - r.getPosition());
-                    float difLeft = Math.abs(this.getLeft() - r.getPosition());
+                        //System.out.println("Right diff " + difRight + " \n Left diff " + difLeft + "\n");
 
-                    // System.out.println("Right diff " + difRight + " \n Left diff " + difLeft +
-                    // "\n");
-
-                    if (difRight > difLeft) {
-                        continue;
-                    } else if (minDistance > difRight) {
-                        minDistance = difRight;
-                        rightR = r;
+                        if (difRight > difLeft) {
+                            continue;
+                        } else if (minDistance > difRight) {
+                            minDistance = difRight;
+                            rightR = r;
+                        }
                     }
                 }
 
@@ -357,14 +364,28 @@ public class TextElement extends Rectangle implements HasText {
     private static float widthOfWord(TextElement chr, List<TextElement> textElements) {
 
         float distance = -1;
-
         // get start position of word
         float start = chr.getLeft();
-        float end = textElements.get(textElements.size() - 1).getRight();
+
+        float end = 0.0f;
+        boolean foundWordBreak = false;
+        for (int i = textElements.indexOf(chr); i <= textElements.size() - 1; i++) {
+            System.out.print(textElements.get(i).getText() + "+");
+            if (textElements.get(i).getText().contains(" ") || textElements.get(i).getText().contains("\n")) {
+                if (i == 0) {
+                    end = textElements.get(i).getRight();
+                }else {
+                    end = textElements.get(i -1).getRight();
+                }
+                foundWordBreak = true;
+                break;
+            }
+        }
+        if (!foundWordBreak) {
+            end = textElements.get(textElements.size() - 1).getRight();
+        }
+        System.out.println("\nend. \n  " + end);
         distance = Math.abs(start - end);
-        // }
-        // }
         return distance;
     }
-
 }
